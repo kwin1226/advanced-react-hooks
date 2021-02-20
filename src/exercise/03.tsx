@@ -4,7 +4,14 @@
 import * as React from 'react'
 
 // 🐨 create your CountContext here with React.createContext
+// @ts-ignore
+const CountContext = React.createContext()
 
+const CountProvider = props => {
+  const [count, setCount] = React.useState(0)
+  const value = [count, setCount]
+  return <CountContext.Provider value={value} {...props} />
+}
 // 🐨 create a CountProvider component here that does this:
 //   🐨 get the count state and setCount updater with React.useState
 //   🐨 create a `value` array with count and setCount
@@ -12,28 +19,27 @@ import * as React from 'react'
 //   💰 more specifically, we need the children prop forwarded to the context provider
 
 function CountDisplay() {
-  // 🐨 get the count from useContext with the CountContext
-  const count = 0
+  // @ts-ignore
+  const [count] = React.useContext(CountContext)
+  console.info('count:', count)
   return <div>{`The current count is ${count}`}</div>
 }
 
 function Counter() {
-  // 🐨 replace the fake implementation of setCount with what you get back from useContext with the CountContext
-  const setCount = () => {}
-  // @ts-expect-error 💣
+  // @ts-ignore
+  const [, setCount] = React.useContext(CountContext)
   const increment = () => setCount(c => c + 1)
+  // const increment = e => console.info(e.target.value)
   return <button onClick={increment}>Increment count</button>
 }
 
 function App() {
   return (
     <div>
-      {/*
-        🐨 wrap these two components in the CountProvider so they can access
-        the CountContext value
-      */}
-      <CountDisplay />
-      <Counter />
+      <CountProvider>
+        <CountDisplay />
+        <Counter />
+      </CountProvider>
     </div>
   )
 }
