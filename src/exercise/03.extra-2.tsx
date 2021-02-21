@@ -124,7 +124,7 @@ function PokemonSection({onSelect, pokemonName}) {
           </PokemonErrorBoundary>
         </div>
       </div>
-    // </PokemonCacheProvider>
+    </PokemonCacheProvider>
   )
 }
 

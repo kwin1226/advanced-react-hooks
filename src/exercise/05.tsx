@@ -5,38 +5,40 @@ import * as React from 'react'
 
 type Message = {id: string; author: string; content: string}
 
-// 🐨 wrap this in a React.forwardRef and accept `ref` as the second argument
-function MessagesDisplay({messages}: {messages: Array<Message>}) {
-  const containerRef = React.useRef<HTMLDivElement>(null)
+const MessagesDisplay = React.forwardRef(
+  ({messages}: {messages: Array<Message>}, ref) => {
+    const containerRef = React.useRef<HTMLDivElement>(null)
+    React.useLayoutEffect(() => {
+      scrollToBottom()
+    })
 
-  React.useLayoutEffect(() => {
-    scrollToBottom()
-  })
+    function scrollToTop() {
+      if (!containerRef.current) return
+      containerRef.current.scrollTop = 0
+    }
 
-  // 💰 you're gonna want this as part of your imperative methods
-  // function scrollToTop() {
-  //   if (!containerRef.current) return
-  //   containerRef.current.scrollTop = 0
-  // }
-  function scrollToBottom() {
-    if (!containerRef.current) return
-    containerRef.current.scrollTop = containerRef.current.scrollHeight
-  }
+    function scrollToBottom() {
+      if (!containerRef.current) return
+      containerRef.current.scrollTop = containerRef.current.scrollHeight
+    }
 
-  // 🐨 call useImperativeHandle here with your ref and a callback function
-  // that returns an object with scrollToTop and scrollToBottom
+    React.useImperativeHandle(ref, () => ({
+      scrollToTop,
+      scrollToBottom,
+    }))
 
-  return (
-    <div ref={containerRef} role="log">
-      {messages.map((message, index, array) => (
-        <div key={message.id}>
-          <strong>{message.author}</strong>: <span>{message.content}</span>
-          {array.length - 1 === index ? null : <hr />}
-        </div>
-      ))}
-    </div>
-  )
-}
+    return (
+      <div ref={containerRef} role="log">
+        {messages.map((message, index, array) => (
+          <div key={message.id}>
+            <strong>{message.author}</strong>: <span>{message.content}</span>
+            {array.length - 1 === index ? null : <hr />}
+          </div>
+        ))}
+      </div>
+    )
+  },
+)
 
 function App() {
   const messageDisplayRef = React.useRef(null)
@@ -63,8 +65,7 @@ function App() {
       <div>
         <button onClick={scrollToTop}>scroll to top</button>
       </div>
-      {/* 🐨 add ref prop here */}
-      <MessagesDisplay messages={messages} />
+      <MessagesDisplay ref={messageDisplayRef} messages={messages} />
       <div>
         <button onClick={scrollToBottom}>scroll to bottom</button>
       </div>
